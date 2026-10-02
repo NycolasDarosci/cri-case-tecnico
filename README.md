@@ -1,7 +1,9 @@
-# 📋 Gestão de Leads & Agente de IA — CRI Soluções Imobiliárias
+# 📋 Gestão de Leads — CRI Soluções Imobiliárias
 
 Solução desenvolvida para o **Case Técnico de Desenvolvedor(a) Jr em Agentes de IA da CRI Soluções Imobiliárias**. 
 A aplicação consiste em uma ferramenta interna de captação, gestão e engajamento automático de leads para o mercado imobiliário.
+
+link: https://cri-gestao-leads.lovable.app/
 
 ---
 
