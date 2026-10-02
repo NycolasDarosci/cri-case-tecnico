@@ -66,8 +66,8 @@ function Index() {
   }, [qc]);
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { novo: 0, em_contato: 0, qualificado: 0, perdido: 0 };
-    leads.forEach((l) => { if (l.status in c) c[l.status]++; });
+    const c: Record<LeadStatus, number> = { novo: 0, em_contato: 0, qualificado: 0, perdido: 0 };
+    leads.forEach((l) => { if (l.status in c) c[l.status] += 1; });
     return c;
   }, [leads]);
 
