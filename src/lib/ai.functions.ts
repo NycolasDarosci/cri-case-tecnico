@@ -19,7 +19,7 @@ export const generateLeadMessage = createServerFn({ method: "POST" })
     z.object({ nome: z.string().min(1).max(200), imovel_interesse: z.string().min(1).max(500) }).parse(data),
   )
   .handler(async ({ data }) => {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env["OPENAI_API_KEY"];
     if (!apiKey) throw new Error("OPENAI_API_KEY não configurada");
     const openai = new OpenAI({ apiKey });
     const userPrompt = `Lead: ${data.nome}, Imóvel de Interesse: ${data.imovel_interesse}`.trim();
