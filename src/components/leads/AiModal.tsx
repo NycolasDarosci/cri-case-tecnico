@@ -17,7 +17,7 @@ export function AiModal({ lead, onClose }: { lead: Lead | null; onClose: () => v
       const msg = e instanceof Error ? e.message : "";
       toast.error(
         msg.includes("429")
-          ? "A conta da OpenAI está sem créditos ou atingiu o limite. Verifique o faturamento."
+          ? "A conta do Gemini atingiu o limite de requisições. Aguarde um instante e tente novamente."
           : "Não foi possível gerar a mensagem.",
       );
     } finally {
