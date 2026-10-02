@@ -23,7 +23,7 @@ export const generateLeadMessage = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("GEMINI_API_KEY não configurada");
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       systemInstruction: systemPrompt,
     });
     const userPrompt = `Lead: ${data.nome}, Imóvel de Interesse: ${data.imovel_interesse}`.trim();
