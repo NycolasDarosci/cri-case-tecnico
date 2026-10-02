@@ -13,8 +13,13 @@ export function AiModal({ lead, onClose }: { lead: Lead | null; onClose: () => v
     setLoading(true);
     try {
       setMessage(await generateMessage(payload));
-    } catch {
-      toast.error("Não foi possível gerar a mensagem.");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      toast.error(
+        msg.includes("429")
+          ? "A conta da OpenAI está sem créditos ou atingiu o limite. Verifique o faturamento."
+          : "Não foi possível gerar a mensagem.",
+      );
     } finally {
       setLoading(false);
     }
