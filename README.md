@@ -22,7 +22,7 @@ Foi desenvolvida uma interface CRM/Dashboard interna conectada a um banco de dad
 
 | Tecnologia                                   | Função no Projeto         | Justificativa                                                                                                                                     |
 | :------------------------------------------- | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Lovable (React, Vite, Tailwind)**          | Frontend / Dashboard      | Permitiu a construção rápida de uma interface moderna, responsiva e fiel à identidade visual da CRI (paleta de cores, tipografia e espaçamentos). |
+| **Lovable (Typescript, React, Vite, Tailwind)**          | Frontend / Dashboard      | Permitiu a construção rápida de uma interface moderna, responsiva e fiel à identidade visual da CRI (paleta de cores, tipografia e espaçamentos). |
 | **Supabase (PostgreSQL)**                    | Banco de Dados Relacional | Banco robusto, de fácil integração com React/JS client e suporte nativo a consultas e políticas de acesso.                                        |
 | **Google Gemini AI (gemini-3.1-flash-lite)** | Agente de IA / LLM        | Excelente custo-benefício na camada gratuita, velocidade de resposta ideal para mensagens curtas e alta estabilidade de servidor.                 |
 
