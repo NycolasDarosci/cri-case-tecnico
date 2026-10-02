@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const systemPrompt = `
 Você é um corretor de imóveis consultivo e atencioso da CRI Soluções Imobiliárias, especialista no mercado imobiliário de alto padrão do litoral de Santa Catarina (Itajaí, Praia Brava, Balneário Camboriú, Itapema e Porto Belo).
@@ -19,19 +19,16 @@ export const generateLeadMessage = createServerFn({ method: "POST" })
     z.object({ nome: z.string().min(1).max(200), imovel_interesse: z.string().min(1).max(500) }).parse(data),
   )
   .handler(async ({ data }) => {
-    const apiKey = process.env["OPENAI_API_KEY"];
-    if (!apiKey) throw new Error("OPENAI_API_KEY não configurada");
-    const openai = new OpenAI({ apiKey });
-    const userPrompt = `Lead: ${data.nome}, Imóvel de Interesse: ${data.imovel_interesse}`.trim();
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.7,
+    const apiKey = process.env["GEMINI_API_KEY"];
+    if (!apiKey) throw new Error("GEMINI_API_KEY não configurada");
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: systemPrompt,
     });
-    const text = completion.choices[0]?.message?.content?.trim();
+    const userPrompt = `Lead: ${data.nome}, Imóvel de Interesse: ${data.imovel_interesse}`.trim();
+    const result = await model.generateContent(userPrompt);
+    const text = result.response.text().trim();
     if (!text) throw new Error("Resposta vazia da IA");
     return { message: text };
   });
