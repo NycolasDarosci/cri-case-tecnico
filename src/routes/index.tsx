@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { criDb } from "@/integrations/external/client";
+import logo from "@/assets/cri-logo.png.asset.json";
 import { KpiCard } from "@/components/leads/KpiCard";
 import { LeadTable } from "@/components/leads/LeadTable";
 import { AiModal } from "@/components/leads/AiModal";
@@ -24,8 +25,10 @@ export const Route = createFileRoute("/")({
 
 function Logo() {
   return (
-    <div className="flex items-center gap-2.5">
-      <span className="text-3xl font-extrabold italic tracking-tighter text-primary">CRI</span>
+    <div className="flex items-center gap-3">
+      <div className="rounded-lg bg-card px-2 py-1">
+        <img src={logo.url} alt="CRI Soluções Imobiliárias" className="h-9 w-auto object-contain sm:h-10" style={{ aspectRatio: "16 / 9", objectFit: "cover" }} />
+      </div>
       <span className="text-[11px] font-semibold leading-tight">Soluções<br />Imobiliárias</span>
     </div>
   );
@@ -38,19 +41,33 @@ function Index() {
   const [origem, setOrigem] = useState<LeadOrigem | "todos">("todos");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Lead | null>(null);
+  const qc = useQueryClient();
 
-  const { data: leads = [], isLoading, error } = useQuery({
-    queryKey: ["leads"],
+  const { data: leads = [], isLoading, error, refetch } = useQuery({
+    queryKey: ["leads-cri"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
+      const { data, error } = await criDb
+        .from("leads")
+        .select("id, nome, telefone_contato, imovel_interesse, origem, status, created_at")
+        .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as Lead[];
+      return (data ?? []) as Lead[];
     },
   });
 
+  useEffect(() => {
+    const ch = criDb
+      .channel("leads-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, () => {
+        qc.invalidateQueries({ queryKey: ["leads-cri"] });
+      })
+      .subscribe();
+    return () => { criDb.removeChannel(ch); };
+  }, [qc]);
+
   const counts = useMemo(() => {
-    const c = { novo: 0, em_contato: 0, qualificado: 0, perdido: 0 };
-    leads.forEach((l) => c[l.status]++);
+    const c: Record<string, number> = { novo: 0, em_contato: 0, qualificado: 0, perdido: 0 };
+    leads.forEach((l) => { if (l.status in c) c[l.status]++; });
     return c;
   }, [leads]);
 
@@ -108,9 +125,22 @@ function Index() {
         </section>
 
         {isLoading ? (
-          <div className="rounded-xl bg-card p-12 text-center text-muted-foreground shadow-card">Carregando leads…</div>
+          <div className="space-y-3 rounded-xl bg-card p-5 shadow-card" aria-busy="true">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-10 animate-pulse rounded-lg bg-muted" />
+            ))}
+          </div>
         ) : error ? (
-          <div className="rounded-xl bg-card p-12 text-center text-destructive shadow-card">Erro ao carregar leads.</div>
+          <div className="rounded-xl bg-card p-12 text-center shadow-card">
+            <p className="font-semibold text-destructive">Não foi possível carregar os leads.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Verifique sua conexão ou as permissões de leitura da tabela.</p>
+            <button onClick={() => refetch()} className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Tentar novamente</button>
+          </div>
+        ) : leads.length === 0 ? (
+          <div className="rounded-xl bg-card p-12 text-center shadow-card">
+            <p className="font-semibold">Nenhum lead disponível.</p>
+            <p className="mt-1 text-sm text-muted-foreground">A tabela está vazia ou as regras de acesso (RLS) não permitem leitura pública.</p>
+          </div>
         ) : (
           <LeadTable leads={filtered} onGenerate={setSelected} />
         )}
