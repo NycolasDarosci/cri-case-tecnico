@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
-import { criDb } from "@/integrations/external/client";
+import { supabase as criDb } from "@/integrations/supabase/client";
 import logo from "@/assets/cri-logo.png.asset.json";
 import { KpiCard } from "@/components/leads/KpiCard";
 import { LeadTable } from "@/components/leads/LeadTable";
