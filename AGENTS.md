@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep third-party AI credentials in backend runtime secrets and call providers through TanStack server functions, so private keys never reach browsers.
