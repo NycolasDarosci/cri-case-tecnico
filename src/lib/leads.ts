@@ -55,12 +55,9 @@ export interface AiMessagePayload {
   imovel_interesse: string;
 }
 
-/**
- * Hook point for the external FastAPI service.
- * Replace the body with: fetch(`${API_URL}/gerar-mensagem`, { method: "POST", body: JSON.stringify(payload) })
- */
+/** Generates a personalized WhatsApp message with OpenAI gpt-4o-mini (server-side, key stays private). */
 export async function generateMessage(payload: AiMessagePayload): Promise<string> {
-  await new Promise((r) => setTimeout(r, 600));
-  const primeiroNome = payload.nome.split(" ")[0];
-  return `Olá ${primeiroNome}! Tudo bem? Aqui é da CRI Soluções Imobiliárias. Vi que você tem interesse no imóvel ${payload.imovel_interesse} e separei algumas informações exclusivas para você. Posso te enviar fotos, valores e agendar uma visita no melhor horário?`;
+  const { generateLeadMessage } = await import("./ai.functions");
+  const { message } = await generateLeadMessage({ data: payload });
+  return message;
 }
