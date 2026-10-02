@@ -27,8 +27,18 @@ export const generateLeadMessage = createServerFn({ method: "POST" })
       systemInstruction: systemPrompt,
     });
     const userPrompt = `Lead: ${data.nome}, Imóvel de Interesse: ${data.imovel_interesse}`.trim();
-    const result = await model.generateContent(userPrompt);
-    const text = result.response.text().trim();
+    let text = "";
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const result = await model.generateContent(userPrompt);
+        text = result.response.text().trim();
+        break;
+      } catch (error) {
+        const isTemporary = error instanceof Error && /503|high demand|unavailable/i.test(error.message);
+        if (!isTemporary || attempt === 2) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 750 * (attempt + 1)));
+      }
+    }
     if (!text) throw new Error("Resposta vazia da IA");
     return { message: text };
   });
